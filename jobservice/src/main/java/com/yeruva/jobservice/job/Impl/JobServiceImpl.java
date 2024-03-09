@@ -4,6 +4,8 @@ package com.yeruva.jobservice.job.Impl;
 import com.yeruva.jobservice.job.Job;
 import com.yeruva.jobservice.job.JobRepository;
 import com.yeruva.jobservice.job.JobService;
+import com.yeruva.jobservice.job.clients.CompanyClient;
+import com.yeruva.jobservice.job.clients.ReviewClient;
 import com.yeruva.jobservice.job.dto.JobDto;
 import com.yeruva.jobservice.job.external.Company;
 import com.yeruva.jobservice.job.external.Review;
@@ -28,6 +30,12 @@ public class JobServiceImpl implements JobService {
 
     @Autowired
     RestTemplate restTemplate;
+
+
+    @Autowired
+    private CompanyClient companyClient;
+    @Autowired
+    private ReviewClient reviewClient;
     @Override
     public List<JobDto> findAll() {
         List<Job> jobs=jobRepository.findAll();
@@ -35,18 +43,8 @@ public class JobServiceImpl implements JobService {
     }
     // how to use rest template... and way to write dto pattern
     private JobDto converToDto(Job job){
-        // getforobject is used when we are getting and we know that reposne is single object/single details
-        //exchange when we are getting response as list of repsonses
-        //null ->specifies that we don't have any request body to send for this  request
-//   new ParameterizedTypeReference<List<Review>>() ->this tells that we expecting, response in this format...list of reviews
-            Company company=restTemplate.getForObject("http://COMPANY-SERVICE:8081/company/getCompany/"+job.getCompanyId(), Company.class);
-           ResponseEntity<List<Review>> reviewResponse=
-                   restTemplate.exchange("http://REVIEW-SERVICE:8083/reviews/getAllReviews?companyId=" + job.getCompanyId(),
-                    HttpMethod.GET, null,
-                   new ParameterizedTypeReference<List<Review>>() {
-
-                    });
-           List<Review> reviews=reviewResponse.getBody();
+            Company company=companyClient.getcompany(job.getCompanyId());
+             List<Review> reviews=reviewClient.getReviews(job.getCompanyId());
             JobDto jobDto = JobMapper.mapToJobWithCompanyDto(job,company,reviews);
             return jobDto;
     }
