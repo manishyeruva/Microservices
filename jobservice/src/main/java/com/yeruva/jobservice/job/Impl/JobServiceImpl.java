@@ -39,10 +39,10 @@ public class JobServiceImpl implements JobService {
     @Override
     public List<JobDto> findAll() {
         List<Job> jobs=jobRepository.findAll();
-        return jobs.stream().map(this::converToDto).collect(Collectors.toList());
+        return jobs.stream().map(this::convertToDto).collect(Collectors.toList());
     }
     // how to use rest template... and way to write dto pattern
-    private JobDto converToDto(Job job){
+    private JobDto convertToDto(Job job){
             Company company=companyClient.getcompany(job.getCompanyId());
              List<Review> reviews=reviewClient.getReviews(job.getCompanyId());
             JobDto jobDto = JobMapper.mapToJobWithCompanyDto(job,company,reviews);
@@ -54,7 +54,7 @@ public class JobServiceImpl implements JobService {
     }
     public JobDto getJobById(Long id) {
         Job job =jobRepository.findById(id).orElse(null);
-         return converToDto(job);
+         return convertToDto(job);
     }
 
     @Override
