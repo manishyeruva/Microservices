@@ -28,8 +28,7 @@ public class JobServiceImpl implements JobService {
     JobRepository jobRepository;
 
 
-    @Autowired
-    RestTemplate restTemplate;
+
 
 
     @Autowired
