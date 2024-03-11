@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface CompanyClient {
 
         @GetMapping("/companies/getCompany/{id}")
-        public Company getcompany(@PathVariable("id") Long companyId);
+        public Company getCompany(@PathVariable(name="id") Long companyId);
 }
