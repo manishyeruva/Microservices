@@ -4,6 +4,9 @@ package com.yeruva.companyservice.company.Impl;
 import com.yeruva.companyservice.company.Company;
 import com.yeruva.companyservice.company.CompanyRepository;
 import com.yeruva.companyservice.company.CompanyService;
+import com.yeruva.companyservice.company.client.ReviewClient;
+import com.yeruva.companyservice.company.dto.ReviewMessage;
+import jakarta.ws.rs.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +18,19 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Autowired
     private CompanyRepository companyRepository;
+    @Autowired
+    private ReviewClient reviewClient;
+
+    public CompanyServiceImpl(CompanyRepository companyRepository) {
+        this.companyRepository = companyRepository;
+    }
+
+
     @Override
     public List<Company> getAllCompanies() {
         return companyRepository.findAll();
     }
+
 
     public void createCompany(Company company){
         companyRepository.save(company);
@@ -48,5 +60,13 @@ public class CompanyServiceImpl implements CompanyService {
     }
     public Company getCompanyById(Long id){
         return companyRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public void updateCompanyRating(ReviewMessage reviewMessage) {
+        Company company=companyRepository.findById(reviewMessage.getCompanyId())
+                .orElseThrow(()-> new NotFoundException("Company not Found"+reviewMessage.getCompanyId()));
+        company.setAvgRating(reviewClient.getAverageRatingForCompany(reviewMessage.getCompanyId()));
+       companyRepository.save(company);
     }
 }

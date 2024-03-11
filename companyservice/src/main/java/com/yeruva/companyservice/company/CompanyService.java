@@ -1,5 +1,7 @@
 package com.yeruva.companyservice.company;
 
+import com.yeruva.companyservice.company.dto.ReviewMessage;
+
 import java.util.List;
 
 public interface CompanyService {
@@ -9,4 +11,6 @@ public interface CompanyService {
  void createCompany(Company comapany);
   boolean deleteComapnyById(Long id);
   Company getCompanyById(Long id);
+
+  public void updateCompanyRating(ReviewMessage reviewMessage);
 }

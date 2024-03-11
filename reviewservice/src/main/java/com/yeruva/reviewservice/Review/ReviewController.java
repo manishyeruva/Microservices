@@ -1,5 +1,6 @@
 package com.yeruva.reviewservice.Review;
 
+import com.yeruva.reviewservice.Review.messaging.ReviewMessageProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,14 @@ public class ReviewController {
    @Autowired
     private ReviewService reviewService;
 
+
+    private ReviewMessageProducer reviewMessageProducer;
+    public ReviewController(ReviewMessageProducer reviewMessageProducer) {
+        this.reviewMessageProducer = reviewMessageProducer;
+    }
+
+
+
    @GetMapping("/getAllReviews")
    public ResponseEntity<List<Review>> getAllReviews(@RequestParam Long companyId){
        return new ResponseEntity<>(reviewService.getAllReviews(companyId), HttpStatus.OK);
@@ -20,9 +29,10 @@ public class ReviewController {
     @PostMapping("/addReview")
     public ResponseEntity<String> addReview(@RequestParam Long companyId,@RequestBody Review review){
        boolean addedReview= reviewService.addReview(companyId,review);
-       if(addedReview)
-             return new ResponseEntity<>("Review Added Successfully", HttpStatus.OK);
-        return new ResponseEntity<>("Review Not Added .might be company not exists", HttpStatus.NOT_FOUND);
+       if(addedReview) {
+           reviewMessageProducer.sendMessage(review);
+           return new ResponseEntity<>("Review Added Successfully", HttpStatus.OK);
+       }return new ResponseEntity<>("Review Not Added .might be company not exists", HttpStatus.NOT_FOUND);
 
     }
     @GetMapping("/getReviewById/{reviewId}")
@@ -44,6 +54,13 @@ return new ResponseEntity<>(reviewService.getReview(reviewId),HttpStatus.OK);
        if(isReviewDeleted)
            return new ResponseEntity<>("Review deleted successfully",HttpStatus.OK);
        return new ResponseEntity<>("Review Not deleted... might be no company or No review exists",HttpStatus.NOT_FOUND);
+
+   }
+
+   @GetMapping("/averageRating")
+    public Double getAverageReview(@RequestParam Long companyId){
+        List<Review> reviewList=reviewService.getAllReviews(companyId);
+       return reviewService.getAverageRatingOfCompany(companyId);
 
    }
    }

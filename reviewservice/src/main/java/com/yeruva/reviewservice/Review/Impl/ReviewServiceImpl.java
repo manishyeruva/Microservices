@@ -60,4 +60,10 @@ public class ReviewServiceImpl implements ReviewService {
         }
             return false;
         }
+
+    @Override
+    public double getAverageRatingOfCompany(Long companyId) {
+
+        return getAllReviews(companyId).stream().mapToDouble(Review::getRating).average().orElse(0.0);
+    }
 }
